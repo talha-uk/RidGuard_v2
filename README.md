@@ -1,21 +1,25 @@
 # RidGuard
 
-MT303'ün canlı kaydını izler ve sahte drone tespiti yapar.
+MT303'ün canlı kaydını izler. Sahte drone yayınına sahte der.
 
-ESP kart, havaya sahte drone kimliği basabiliyor. MT303 bunu da satır satır yazar. RidGuard bu satırları okur. ESP kartın bastığı kimliği **sahte** diye gösterir. Onu haritada gerçek drone diye işaretlemez.
+ESP kart havaya sahte kimlik basar. MT303 bu yayını da yazar. RidGuard satırı okur. Bilinen ESP kalıbını **sahte** gösterir. Onu haritaya koymaz.
 
-Gerçek bir uçuş bağlantısı gelirse onu gösterir.
+Uçuş bağlantısı gelirse onu gösterir.
 
-## Ekranı açmak
+## Ekran
 
 ```bash
 python3 -m rid_guard.ekran
 ```
 
-Tarayıcıda [http://127.0.0.1:8765](http://127.0.0.1:8765) açılır.
+Tarayıcıda [http://127.0.0.1:8765](http://127.0.0.1:8765) açılır. **Bağlan** deyince MT303'ün o anki satırları solda akar. MT303 susunca liste silinir.
 
-Sol tarafta MT303'ün o an yazdığı satırlar durur. **Bağlan** deyince başlar. MT303 susunca liste silinir.
+Sağda üç işaret vardır.
 
-Sağ tarafta üç işaret durur. **sahte**: bilinen ESP kalıbı, ya da seri düzgün olsa bile hareketi bozuk olan yayın. Hız söylenip konum 5 saniye yerinde kalırsa, yön ile gidiş uyuşmazsa, irtifa bir anda çok değişirse de sahte sayılır. Uçuş bağlantısı varken beacon 200 metreden uzak yer gösterirse o beacon da sahte sayılır. **sürü**: dört kimlik 15 saniye ve 80 metre içindedir. Yan yana uçuş tek başına sahte değildir. **şüpheli**: seri düzgün durur, uçuş bağlantısı yoktur. Üçü de haritaya konmaz. Yayın kesilince satır kaybolur.
+- **sahte:** ESP kalıbı, ya da hız, yön, irtifa birbiriyle uyuşmayan yayın. Uçuş bağlantısı varken beacon 200 metreden uzak yer gösterirse o da sahte sayılır.
+- **sürü:** Dört kimlik 15 saniye ve 80 metre içindedir. Yan yana uçuş tek başına sahte sayılmaz.
+- **şüpheli:** Seri düzgün durur. Uçuş bağlantısı yoktur.
 
-Ne yaptığımız: [YAPTIKLARIMIZ.md](YAPTIKLARIMIZ.md). Teknik kurallar: [OKU.md](OKU.md).
+Üçü de haritaya konmaz. Yayın kesilince satır kaybolur.
+
+Ne yaptığımız: [YAPTIKLARIMIZ.md](YAPTIKLARIMIZ.md). Kurallar: [OKU.md](OKU.md).

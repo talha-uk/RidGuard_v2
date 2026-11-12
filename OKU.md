@@ -1,62 +1,63 @@
-# RidGuard_v2
+# Kurallar
 
-Bu dosya teknik kurallardır. Kısa anlatım [README.md](README.md) ve [YAPTIKLARIMIZ.md](YAPTIKLARIMIZ.md) içindedir.
+Kısa anlatım [README.md](README.md) ve [YAPTIKLARIMIZ.md](YAPTIKLARIMIZ.md) içindedir.
 
-AD-TB MT303, ESP8266 Remote ID yayınını gerçek uçak sanmasın diye yazılmış karar katmanı. Sürüm 0.7.0. Bu sürüm RF basmaz, firmware yazmaz, seri port açmaz.
+Sürüm 0.7.0. Program radyo yayını yapmaz. Kart yazılımı yazmaz. Seri port açmaz.
 
-Eski `/home/talha/Desktop/RidGuard` bilgi kaynağıdır. Kodu buraya kopyalanmaz.
+Eski `/home/talha/Desktop/RidGuard` yalnız bakmak içindir. Kodu buraya kopyalanmaz.
 
-## Karar
+## Ekranda ne yazar
 
-| Kaynak | Seri ve hareket | Ekran | verdict |
-| --- | --- | --- | --- |
-| ocusync veya fingerprint | ESP8266 şablonu değil | çiz | confirmed |
-| ocusync, fingerprint veya remote_id | `ridSerial()` şablonu | sahte yaz, iğne yok | spoof |
-| remote_id | CTA-2063 dışı, dolgu, katalog operatör / Self-ID / SSID, 45 m/s üstü hız, hız var konum yok, yön uyuşmaz, irtifa sıçrar, bağ yerinden 200 m sapma | sahte yaz, iğne yok | spoof |
-| remote_id | aynı 15 saniye ve 80 metre içinde 4 pilot, başka bozukluk yok | sürü yaz, iğne yok | swarm |
-| remote_id | yapı düzgün, tek başına | şüpheli yaz, iğne yok | hold |
+| Gelen kayıt | Ekran | Sonuç |
+| --- | --- | --- |
+| Uçuş bağlantısı, ESP kalıbı yok | haritaya koy | confirmed |
+| ESP kalıbı | sahte, iğne yok | spoof |
+| Remote ID, hareketi bozuk | sahte, iğne yok | spoof |
+| 15 saniye ve 80 metre içinde 4 pilot, başka bozukluk yok | sürü, iğne yok | swarm |
+| Düzgün tek Remote ID | şüpheli, iğne yok | hold |
 
-Konum iğnesi yalnız OcuSync veya parmak izi kaydından gelir. Remote ID satırı, seri aynı olsa bile iğneyi taşımaz.
+Harita iğnesi yalnız uçuş bağlantısından gelir. Remote ID aynı seriyi taşısa da iğneyi oynatmaz.
 
-Düzgün tek Remote ID `şüpheli` diye görünür. `--show-hold` o kaydın iddia edilen yerini de basar. Operasyon resmi `--only-screen` çıktısıdır.
+## Sahte
 
-## Kurallar
+ESP kalıbı sahte olur. Kaynak uçuş bağlantısı yazsa da iğne almaz. Pilot konumu, iddia edilen operatör yeri olarak kalır.
 
-ESP8266 `ridSerial()` şablonu spoof olur ve ekranda `sahte` diye durur. Kaynak `ocusync` yazsa da uçak iğnesi almaz. Pilot konumu, iddia edilen operatör yeri olarak kalır.
+- Seri `1581F` + 3 karakter + `RID` + iki rakam + yedi `X` ise kalıptır. Örnek `1581F5YHRID01XXXXXXX`. Rakam değişse de kalıp yeter.
+- Ürün kodu yoksa model adı 20 karaktere `X` ile doldurulur. Örnek `DJIMINISEXXXXXXXXXXX`.
 
-- Ürün kodu: `1581F` + 3 karakter + `RID` + iki hane + yedi `X`. Örnek `1581F5YHRID01XXXXXXX`. Hane değişse de kalıp yeter.
-- Ürün kodu yoksa model adı, boşluk ve `+` atılıp 20 karaktere `X` ile doldurulur. Örnek `DJIMINISEXXXXXXXXXXX`.
+Modeller: Mini 3, Mini 3 Pro, Mini 4 Pro, Mini SE, Air 2S, Air 3, Mavic Air 2, Mavic 3, Mavic 3 Classic, Avata, Avata 2, FPV, Autel EVO Nano+, Autel EVO II Pro, Parrot Anafi. Eski yazılım için Mini 2, Skydio 2+ ve Holy Stone HS720E de aynı dolgu kuralına girer.
 
-15'lik liste: Mini 3, Mini 3 Pro, Mini 4 Pro, Mini SE, Air 2S, Air 3, Mavic Air 2, Mavic 3, Mavic 3 Classic, Avata, Avata 2, FPV, Autel EVO Nano+, Autel EVO II Pro, Parrot Anafi. Eski yazılım için Mini 2, Skydio 2+ ve Holy Stone HS720E de aynı dolgu kuralıyla durur.
+Seri CTA-2063 biçimine bakılır. Başta 4 karakter üretici kodu, sonra uzunluk, sonra seri gelir. `I` ve `O` harfi kullanılmaz. Uzunluk `1..9`, sonra `A=10` … `F=15`. Biçim uyuşmazsa sahte olur.
 
-Seri, ANSI/CTA-2063-A yapısına bakılır: 4 karakter üretici, 1 uzunluk kodu, kodun dediği kadar üretici seri. Alfabe `I` ve `O` içermez. Uzunluk kodu `1..9`, `A=10` … `F=15`. Uyuşmayan Remote ID kaydı spoof olur.
+Aynı karakter 7 kez tekrar ederse sahte olur.
 
-Aynı karakter 7 kez veya daha uzun tekrar ederse dolgudur.
+Operatör adı, kendi adı veya ağ adı katalogdaki bir model ise sahte olur. Aynı ad, kalıbı bozuk olmayan uçuş bağlantısını düşürmez.
 
-Operatör, Self-ID veya SSID katalog model adıysa Remote ID kaydı spoof olur. Aynı ad, şablonu bozuk olmayan bir OcuSync kaydını düşürmez.
+Bildirilen hız 45 m/s üstündeyse sahte olur. İki konumun gerektirdiği hız da aynı sınıra bakar. Hız metre/saniye kabul edilir. 50 ms ve altı aralık hesaba girmez. Bu sınır küçük çok rotorlu dronelar içindir. Hızlı sabit kanat yanlış sahte görünebilir.
 
-Aynı 15 saniye ve 80 metre içinde 4 ayrı Remote ID pilotu bir sürü olur. Bu sahte hükmü değildir. Gerçek bir sürü de yan yana görünür. Küme, oluştuğu andan itibaren 15 saniye sürü kalır. Başka bir bozukluk varsa sahte hükmü sürer.
+Hız en az 3 m/s iken, 5 ile 20 saniye arasında konum o hızın dörtte birinden az gittiyse sahte olur. Yön dolu ve konum yerindeyse aynı sahte kayda girer. Konum en az 20 metre gittiyse ve gidiş bildirilen yönden 60 dereceden fazla sapıyorsa sahte olur. İrtifa saniyede 15 metreden hızlı değişirse sahte olur.
 
-İki konumun gerektirdiği hız 45 m/s üstündeyse spoof olur. Bildirilen `airspeed` de aynı sınıra bakar ve m/s kabul edilir. 50 ms ve altı aralık hız hesabına girmez. Bu sınır tüketici çok rotorludur. Hızlı sabit kanat yanlış pozitif verebilir.
+Uçuş bağlantısı 120 saniye hatırlanır. Bu sürede gelen Remote ID iğneyi oynatmaz. Aynı seride beacon ile bağlantı 200 metreden fazla ayrılırsa beacon sahte olur. İğne bağlantıda kalır. Bağlantı yoksa düzgün beacon şüpheli kalır. Gövde mesajı doğrulamaz.
 
-Bildirilen hız en az 3 m/s iken, 5 ile 20 saniye arasında konum o hızın dörtte birinden az yer değiştirdiyse sahte olur. Yön doluysa ve konum yerinde kaldıysa aynı sahte kayda girer. Konum en az 20 metre gittiyse ve gidiş, bildirilen yönden 60 dereceden fazla sapıyorsa sahte olur. İrtifa değişimi 15 m/s üstündeyse sahte olur.
+## Sürü
 
-`source` boş veya bilinmeyen ise remote_id sayılır. `mode` içinde ocusync, o2, o3, o4 veya `drone id` bağdır. `fingerprint` parmak izidir. `protocol` tek başına bağ değildir.
+Aynı 15 saniye ve 80 metre içinde 4 ayrı pilot bir sürü olur. Küme 15 saniye daha sürü kalır. Başka bir bozukluk varsa sahte olur.
 
-Bağ kaydı 120 saniye hatırlanır. Bu pencerede gelen Remote ID iğneyi oynatmaz. Gerekçeye `remote_id_position_ignored` yazılır. Aynı seride beacon ile bağ konumu 200 metreden fazla ayrılırsa beacon sahte olur. Gerekçe `link_disagrees`. İğne bağ kaydında kalır. Bağ yoksa düzgün beacon şüpheli kalır. Gövde bunu doğrulamaz.
+## Bağlantı sayılanlar
 
-## Akış
+Kaynak boşsa veya bilinmiyorsa Remote ID sayılır. Kayıtta ocusync, o2, o3, o4 veya `drone id` varsa bağlantıdır. `fingerprint` parmak izidir. `protocol` tek başına bağlantı sayılmaz.
 
-1. MT303 pasif dinler. Bu yazılım RF basmaz.
-2. Bilinen satır JSON olur. Okunan alanlar: `serial_number`, `latitude`, `longitude`, `altitude`, `airspeed`, `pilot_latitude`, `pilot_longitude`, `operator`, `self_id`, `ssid`, `mode`.
-3. `python3 -m rid_guard` her satıra bir karar basar.
-4. Tanınmayan satır stderr'e `verdict: reject` olarak düşer ve ekrana drone eklemez.
+## Okunan satır
 
-MT303 cümlesi `$tip,...,$end` okunur. `$RID` karara girer. `$heartbeat` ve `$Feature` uçak değildir, atlanır. `/dev/ttyUSB0` spoofer kartıdır. Portu açmak kartı resetler. Bu iş ayrı açık istek ister.
+MT303 satırı `$tip,...,$end` biçimindedir. `$RID` karara girer. `$heartbeat` ve `$Feature` uçak sayılmaz.
+
+JSON alanları: seri, enlem, boylam, irtifa, hız, pilot yeri, operatör, kendi adı, ağ adı, mod.
+
+Tanınmayan satır ekrana drone eklemez.
+
+`/dev/ttyUSB0` ESP kartıdır. Portu açmak kartı resetler. Açılmaz.
 
 ## Çalıştırma
-
-Bu makinede Python 3.10 vardır. Karar motoru standart kütüphane ile çalışır.
 
 ```bash
 cd /home/talha/Desktop/RidGuard_v2
@@ -65,14 +66,10 @@ python3 -m rid_guard --only-screen --file fixtures/lab_and_link.jsonl
 python3 -m rid_guard.ekran
 ```
 
-Arayüz `http://127.0.0.1:8765` adresindedir. Soldaki Bağlan, MT303 ağdaysa `192.168.0.200:10123` akışını açar. Ekranda yalnız bu bağlantıdan sonra gelen satırlar durur. MT303 yaklaşık 3 saniye susunca bağlantı düşer ve liste boşalır. Sağda son 20 saniyede görülen sahte yayınlar durur. Aynı portu `izle.py` tutuyorsa bağlanma olmaz.
+Ekran `http://127.0.0.1:8765` adresindedir. Bağlan, MT303 ağdaysa `192.168.0.200:10123` akışını açar. Ekranda yalnız bu bağlantıdan sonra gelen satırlar durur. MT303 yaklaşık 3 saniye susunca liste boşalır. Sağda son 20 saniyenin sahte, şüpheli ve sürü yayınları durur. Aynı portu `izle.py` tutuyorsa bağlanma olmaz.
 
-Laboratuvar fikstüründeki Remote ID satırı `display: true`, `mark: sahte` ve `verdict: spoof` olur. Uçak konumu boştur. OcuSync satırı `display: true` ve `mark` boş olur. `--only-screen` ikisini de basar.
+## Sınır
 
-## Bilinçli sınır
+Düzgün tek Remote ID şüpheli kalır. Uçuş bağlantısı gelince gerçek sayılır.
 
-Dört Remote ID uçağı 80 metre içinde 15 saniyede görünürse onlar da sahte yazılır. Haritaya konmaz.
-
-Tek ve yapısı düzgün bir Remote ID, hold kalır. Bağ çözülemeyen gerçek bir uçak da ana ekranda görünmez. Parmak izi veya OcuSync satırı gelince uçak confirmed olur.
-
-Dedektör tam seri yerine kısa ürün kodu yollarsa şablon gerçek uçakla karışabilir. Ayrım 20 karakterlik seri ister.
+Dedektör tam seri yerine kısa ürün kodu yollarsa kalıp gerçek uçakla karışabilir. Ayrım 20 karakterlik seri ister.

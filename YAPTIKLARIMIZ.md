@@ -1,15 +1,21 @@
 # Ne yaptık
 
-MT303'ün canlı kaydını izliyoruz ve sahte drone tespiti yapıyoruz.
+MT303'ün canlı kaydını izliyoruz. Sahte drone yayınına sahte diyoruz.
 
-ESP kart sahte drone kimliği yayıyor. MT303 bu yayını da yazıyor.
+ESP kart sahte kimlik basar. MT303 bu yayını da yazar. RidGuard kaydı okur.
 
-RidGuard bu kaydı okur. ESP kartın bilinen kalıbını **sahte** diye gösterir. Seri düzgünleşirse de bitmez. Hız söylenip konum yerinde kalırsa, yön ile gidiş uyuşmazsa, irtifa bir anda çok değişirse yine **sahte** olur. Dört kimlik yan yanaysa **sürü** olur. Bu sahte hükmü değildir. Seri düzgün ve tek başına ise **şüpheli** olur. Üçü de haritaya konmaz. Yayın gizlenmez.
+- Bilinen ESP kalıbı **sahte** olur.
+- Hız söylenip konum yerinde kalırsa, yön ile gidiş uyuşmazsa, irtifa bir anda çok değişirse **sahte** olur.
+- Uçuş bağlantısının yeri ile beacon 200 metreden fazla ayrılırsa beacon **sahte** olur.
+- Dört kimlik yan yanaysa **sürü** olur. Bu sahte hükmü sayılmaz.
+- Seri düzgün ve tek başınaysa **şüpheli** olur.
 
-Gerçek bir uçuş bağlantısı gelirse onu gösterir. Gövde yalan beacon da basabilir. Beacon, bağlantının yerinden 200 metreden fazla saparsa sahte olur. Bağlantı yoksa beacon şüpheli kalır.
+Üçü de haritaya konmaz. Yayın gizlenmez.
+
+Uçuş bağlantısı gelirse onu gösterir. Gövdenin gerçek olması beacon'u doğrulamaz. Bağlantı yoksa beacon şüpheli kalır.
 
 Ekran iki parçadır. Solda MT303'ün canlı kaydı vardır. Sağda sahte, şüpheli ve sürü yayınlar vardır.
 
 Program yalnız dinler. ESP kartın yayınını kendisi üretmez.
 
-Teknik kurallar [OKU.md](OKU.md) içindedir.
+Kurallar [OKU.md](OKU.md) içindedir.
