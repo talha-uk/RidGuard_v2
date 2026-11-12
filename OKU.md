@@ -2,7 +2,7 @@
 
 Bu dosya teknik kurallardır. Kısa anlatım [README.md](README.md) ve [YAPTIKLARIMIZ.md](YAPTIKLARIMIZ.md) içindedir.
 
-AD-TB MT303, ESP8266 Remote ID yayınını gerçek uçak sanmasın diye yazılmış karar katmanı. Sürüm 0.5.0. Bu sürüm RF basmaz, firmware yazmaz, seri port açmaz.
+AD-TB MT303, ESP8266 Remote ID yayınını gerçek uçak sanmasın diye yazılmış karar katmanı. Sürüm 0.6.0. Bu sürüm RF basmaz, firmware yazmaz, seri port açmaz.
 
 Eski `/home/talha/Desktop/RidGuard` bilgi kaynağıdır. Kodu buraya kopyalanmaz.
 
@@ -12,7 +12,7 @@ Eski `/home/talha/Desktop/RidGuard` bilgi kaynağıdır. Kodu buraya kopyalanmaz
 | --- | --- | --- | --- |
 | ocusync veya fingerprint | ESP8266 şablonu değil | çiz | confirmed |
 | ocusync, fingerprint veya remote_id | `ridSerial()` şablonu | sahte yaz, iğne yok | spoof |
-| remote_id | CTA-2063 dışı, dolgu, katalog operatör / Self-ID / SSID, 45 m/s üstü hız, hız var konum yok, yön uyuşmaz, irtifa sıçrar, aynı pilot etrafında 4 uçak | sahte yaz, iğne yok | spoof |
+| remote_id | CTA-2063 dışı, dolgu, katalog operatör / Self-ID / SSID, 45 m/s üstü hız, hız var konum yok, yön uyuşmaz, irtifa sıçrar, bağ yerinden 200 m sapma, aynı pilot etrafında 4 uçak | sahte yaz, iğne yok | spoof |
 | remote_id | yapı düzgün, tek başına | şüpheli yaz, iğne yok | hold |
 
 Konum iğnesi yalnız OcuSync veya parmak izi kaydından gelir. Remote ID satırı, seri aynı olsa bile iğneyi taşımaz.
@@ -42,7 +42,7 @@ Bildirilen hız en az 3 m/s iken, 5 ile 20 saniye arasında konum o hızın dör
 
 `source` boş veya bilinmeyen ise remote_id sayılır. `mode` içinde ocusync, o2, o3, o4 veya `drone id` bağdır. `fingerprint` parmak izidir. `protocol` tek başına bağ değildir.
 
-Bağ kaydı 120 saniye hatırlanır. Bu pencerede gelen Remote ID iğneyi oynatmaz. Gerekçeye `remote_id_position_ignored` yazılır.
+Bağ kaydı 120 saniye hatırlanır. Bu pencerede gelen Remote ID iğneyi oynatmaz. Gerekçeye `remote_id_position_ignored` yazılır. Aynı seride beacon ile bağ konumu 200 metreden fazla ayrılırsa beacon sahte olur. Gerekçe `link_disagrees`. İğne bağ kaydında kalır. Bağ yoksa düzgün beacon şüpheli kalır. Gövde bunu doğrulamaz.
 
 ## Akış
 

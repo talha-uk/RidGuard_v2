@@ -310,6 +310,25 @@ class GuardTests(unittest.TestCase):
         self.assertTrue(decision.display)
         self.assertIsNone(decision.lat)
         self.assertIn("remote_id_position_ignored", decision.reasons)
+        self.assertNotIn("link_disagrees", decision.reasons)
+        self.assertEqual(link.lat, 39.8132)
+
+    def test_remote_id_far_from_the_link_is_fake(self):
+        guard = Guard()
+        link = guard.observe(_clean(CLEAN, 10.0, source="ocusync"))
+        lied = Sighting(
+            ts=12.0,
+            source="remote_id",
+            serial=CLEAN,
+            lat=39.8232,
+            lon=32.4318,
+            operator_id="TR-OP-1001",
+        )
+        decision = guard.observe(lied)
+        self.assertEqual(decision.verdict, "spoof")
+        self.assertEqual(decision.mark, "sahte")
+        self.assertIn("link_disagrees", decision.reasons)
+        self.assertIsNone(decision.lat)
         self.assertEqual(link.lat, 39.8132)
 
     def test_impossible_jump_is_spoof(self):

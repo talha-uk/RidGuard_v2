@@ -24,6 +24,7 @@ CLUSTER_MIN = 4
 CLUSTER_WINDOW_S = 15.0
 CLUSTER_RADIUS_M = 80.0
 LINK_MEMORY_S = 120.0
+LINK_DISAGREE_M = 200.0
 MIN_DT_S = 0.05
 _PADDING = re.compile(r"(.)\1{6,}")
 
@@ -103,7 +104,7 @@ class Guard:
             )
         if source in LINK_SOURCES:
             if _has_fix(sighting):
-                self._link_seen[serial] = sighting.ts
+                self._link_seen[serial] = _mark(sighting)
             self._track[serial] = _mark(sighting)
             return Decision(
                 serial=serial,
@@ -118,6 +119,7 @@ class Guard:
         reasons = _identity(serial, sighting)
         reasons.extend(self._motion(serial, sighting))
         reasons.extend(self._consistency(serial, sighting))
+        reasons.extend(self._link_conflict(serial, sighting))
         if self._clustered(serial, sighting):
             reasons.append("pilot_cluster")
         self._track[serial] = _mark(sighting)
@@ -144,7 +146,7 @@ class Guard:
     def _expire(self, now: float) -> None:
         self._pilots = [item for item in self._pilots if now - item[0] <= CLUSTER_WINDOW_S]
         self._link_seen = {
-            key: ts for key, ts in self._link_seen.items() if now - ts <= LINK_MEMORY_S
+            key: mark for key, mark in self._link_seen.items() if now - mark.ts <= LINK_MEMORY_S
         }
         self._cluster_until = {
             key: until for key, until in self._cluster_until.items() if until >= now
@@ -205,6 +207,14 @@ class Guard:
         if past.alt is not None and sighting.alt_m is not None and abs(sighting.alt_m - past.alt) / dt > MAX_VERTICAL_MPS:
             reasons.append("vertical_speed")
         return reasons
+
+    def _link_conflict(self, serial: str, sighting: Sighting) -> list[str]:
+        link = self._link_seen.get(serial)
+        if link is None or link.lat is None or link.lon is None or not _has_fix(sighting):
+            return []
+        if _meters(link.lat, link.lon, sighting.lat, sighting.lon) > LINK_DISAGREE_M:
+            return ["link_disagrees"]
+        return []
 
     def _clustered(self, serial: str, sighting: Sighting) -> bool:
         if sighting.pilot_lat is None or sighting.pilot_lon is None:
