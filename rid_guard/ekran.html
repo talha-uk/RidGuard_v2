@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RidGuard</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #1d2021;
+      --pane: #282828;
+      --line: #3c3836;
+      --text: #ebdbb2;
+      --muted: #a89984;
+      --fake: #fb4934;
+      --ok: #b8bb26;
+      --rid: #fabd2f;
+      --feature: #83a598;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.4 "IBM Plex Sans", "Source Sans 3", sans-serif;
+    }
+    .pane {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 0;
+      border-right: 1px solid var(--line);
+    }
+    .pane:last-child { border-right: 0; }
+    header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: var(--pane);
+    }
+    h1 { margin: 0; font-size: 16px; font-weight: 650; }
+    .sub { color: var(--muted); font-size: 13px; }
+    button {
+      margin-left: auto;
+      background: var(--ok);
+      color: #1d2021;
+      border: 0;
+      border-radius: 6px;
+      padding: 8px 14px;
+      font: inherit;
+      font-weight: 650;
+      cursor: pointer;
+    }
+    button:disabled { opacity: 0.6; cursor: wait; }
+    button.danger { background: var(--fake); color: #1d2021; }
+    .scroll { flex: 1; overflow: auto; padding: 10px 14px 16px; }
+    .row {
+      font: 13px/1.45 ui-monospace, "Source Code Pro", monospace;
+      white-space: pre-wrap;
+      word-break: break-all;
+      padding: 3px 0;
+      border-bottom: 1px solid #32302f;
+    }
+    .row.heartbeat { color: var(--muted); }
+    .row.rid { color: var(--rid); }
+    .row.feature { color: var(--feature); }
+    .empty { color: var(--muted); padding: 8px 0; }
+    .card {
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--fake);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      background: #32302f;
+    }
+    .card h2 { margin: 0 0 4px; font-size: 16px; }
+    .serial { font-family: ui-monospace, monospace; font-size: 13px; }
+    .meta { color: var(--muted); font-size: 13px; margin-top: 6px; }
+    .rssi { float: right; color: var(--fake); font-weight: 650; }
+    @media (max-width: 800px) {
+      body { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+      .pane { border-right: 0; border-bottom: 1px solid var(--line); }
+    }
+  </style>
+</head>
+<body>
+  <section class="pane">
+    <header>
+      <div>
+        <h1>MT303</h1>
+        <div class="sub" id="status">bağlı değil</div>
+      </div>
+      <button id="connect" type="button">Bağlan</button>
+    </header>
+    <div class="scroll" id="live">
+      <div class="empty">Bağlan deyince kutunun bastığı satırlar burada akar.</div>
+    </div>
+  </section>
+  <section class="pane">
+    <header>
+      <div>
+        <h1>Tahmini sahte sinyaller</h1>
+        <div class="sub" id="fake-count">aktif yok</div>
+      </div>
+    </header>
+    <div class="scroll" id="fakes">
+      <div class="empty">Son 20 saniyede sahte yayın yok.</div>
+    </div>
+  </section>
+  <script>
+    const status = document.querySelector("#status");
+    const button = document.querySelector("#connect");
+    const live = document.querySelector("#live");
+    const fakes = document.querySelector("#fakes");
+    const count = document.querySelector("#fake-count");
+    let stick = true;
+
+    live.addEventListener("scroll", () => {
+      stick = live.scrollHeight - live.scrollTop - live.clientHeight < 40;
+    });
+
+    function cls(line) {
+      if (line.startsWith("$heartbeat")) return "heartbeat";
+      if (line.startsWith("$RID")) return "rid";
+      if (line.startsWith("$Feature")) return "feature";
+      return "";
+    }
+
+    function esc(text) {
+      return String(text).replace(/[&<>]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[ch]));
+    }
+
+    function pilot(row) {
+      if (row.pilot_lat == null || row.pilot_lon == null) return "pilot yok";
+      return "pilot " + row.pilot_lat.toFixed(7) + ", " + row.pilot_lon.toFixed(7);
+    }
+
+    function rssi(value) {
+      if (value == null) return "";
+      return (value > 0 ? "+" : "−") + Math.abs(value) + " dBm";
+    }
+
+    function draw(body) {
+      if (body.status === "bağlı") {
+        status.textContent = "bağlı " + body.host + ":" + body.port;
+        button.textContent = "Kes";
+        button.className = "danger";
+        button.disabled = false;
+      } else if (body.status === "bağlanıyor") {
+        status.textContent = "bağlanıyor";
+        button.textContent = "Bağlanıyor";
+        button.className = "";
+        button.disabled = true;
+      } else if (body.status === "hata") {
+        status.textContent = body.error || "bağlantı kurulamadı";
+        button.textContent = "Bağlan";
+        button.className = "";
+        button.disabled = false;
+      } else {
+        status.textContent = "bağlı değil";
+        button.textContent = "Bağlan";
+        button.className = "";
+        button.disabled = false;
+      }
+
+      if (body.status !== "bağlı" || !body.lines.length) {
+        const waiting = body.status === "bağlı"
+          ? "Bağlandı. Kutunun yeni satırları burada görünecek."
+          : "Bağlan deyince kutunun bastığı satırlar burada akar.";
+        live.innerHTML = '<div class="empty">' + waiting + "</div>";
+      } else {
+        live.innerHTML = body.lines.map((line) => {
+          const safe = line.replace(/[&<>]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[ch]));
+          return '<div class="row ' + cls(line) + '">' + safe + "</div>";
+        }).join("");
+        if (stick) live.scrollTop = live.scrollHeight;
+      }
+
+      if (body.status !== "bağlı" || !body.fakes.length) {
+        count.textContent = "aktif yok";
+        fakes.innerHTML = '<div class="empty">Son 20 saniyede sahte yayın yok.</div>';
+        return;
+      }
+      count.textContent = body.fakes.length + " aktif";
+      fakes.innerHTML = body.fakes.map((row) => {
+        const where = [row.protocol, row.channel ? "kanal " + row.channel : ""].filter(Boolean).join(" ");
+        const age = row.age_s < 1 ? "şimdi" : Math.round(row.age_s) + " sn";
+        return '<article class="fake-card card"><span class="rssi">' + rssi(row.rssi) +
+          "</span><h2>" + esc(row.model || "bilinmeyen model") + "</h2><div class=\"serial\">" +
+          esc(row.serial) + "</div><div class=\"meta\">" + esc(pilot(row) + " · " + where +
+          " · " + row.count + " kez · " + age) + "</div></article>";
+      }).join("");
+    }
+
+    async function pull() {
+      const response = await fetch("/api/state");
+      draw(await response.json());
+    }
+
+    button.addEventListener("click", async () => {
+      const path = button.textContent === "Kes" ? "/api/disconnect" : "/api/connect";
+      button.disabled = true;
+      const response = await fetch(path, { method: "POST" });
+      draw(await response.json());
+      button.disabled = button.textContent === "Bağlanıyor";
+    });
+
+    pull();
+    setInterval(pull, 500);
+  </script>
+</body>
+</html>

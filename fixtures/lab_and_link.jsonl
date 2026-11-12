@@ -1,0 +1,2 @@
+{"ts": 1700000000.0, "source": "remote_id", "serial": "1581F5YHRID01XXXXXXX", "model": "DJI Mini 3", "lat": 39.8132, "lon": 32.4318, "pilot_lat": 39.8132, "pilot_lon": 32.4318, "operator_id": "DJI Mini 3", "speed_mps": 2.0}
+{"ts": 1700000001.0, "source": "ocusync", "serial": "1581FA23456789ABCDEF", "model": "DJI Mini 3", "lat": 39.8200, "lon": 32.4400, "alt_m": 60.0, "speed_mps": 8.0, "pilot_lat": 39.8190, "pilot_lon": 32.4390, "operator_id": "TR-OP-1001"}
