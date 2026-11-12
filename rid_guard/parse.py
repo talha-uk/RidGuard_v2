@@ -57,6 +57,7 @@ def parse_line(line: str) -> Sighting:
         lon=_number(payload, "lon", "longitude", "long"),
         alt_m=_number(payload, "alt_m", "altitude", "alt"),
         speed_mps=_number(payload, "speed_mps", "airspeed", "speed"),
+        yaw_deg=_number(payload, "yaw_deg", "yaw", "yaw_angle", "heading"),
         pilot_lat=_number(payload, "pilot_lat", "pilot_latitude"),
         pilot_lon=_number(payload, "pilot_lon", "pilot_longitude"),
         operator_id=_text(payload, "operator_id", "operator"),
@@ -92,8 +93,9 @@ def _parse_mt(text: str) -> Sighting | None:
         serial=serial,
         lat=_optional_number(fields, "latitude"),
         lon=_optional_number(fields, "longitude"),
-        alt_m=_optional_number(fields, "altitude_geo", "altitude_qne"),
+        alt_m=_optional_number(fields, "altitude_geo", "altitude_qne", "height"),
         speed_mps=_optional_number(fields, "speed"),
+        yaw_deg=_optional_number(fields, "yaw_angle"),
         # MT303 operatör enlemini latitude_polit diye yazar.
         pilot_lat=_optional_number(fields, "latitude_polit"),
         pilot_lon=_optional_number(fields, "longitude_polit"),

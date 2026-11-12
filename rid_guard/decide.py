@@ -13,6 +13,13 @@ from rid_guard.models import LINK_SOURCES, Sighting, normalize_source
 from rid_guard.template import is_catalog_label, matches_template, template_model
 
 MAX_SPEED_MPS = 45.0
+MAX_VERTICAL_MPS = 15.0
+MOTION_WINDOW_S = 5.0
+MOTION_HISTORY_S = 20.0
+SPEED_LIE_MPS = 3.0
+MOTION_FRACTION = 0.25
+HEADING_MIN_MOVE_M = 20.0
+HEADING_TOLERANCE_DEG = 60.0
 CLUSTER_MIN = 4
 CLUSTER_WINDOW_S = 15.0
 CLUSTER_RADIUS_M = 80.0
@@ -59,9 +66,18 @@ class _Mark:
 
 
 @dataclass
+class _Fix:
+    ts: float
+    lat: float
+    lon: float
+    alt: float | None
+
+
+@dataclass
 class Guard:
     max_speed_mps: float = MAX_SPEED_MPS
     _track: dict = field(default_factory=dict)
+    _history: dict = field(default_factory=dict)
     _pilots: list = field(default_factory=list)
     _link_seen: dict = field(default_factory=dict)
     _cluster_until: dict = field(default_factory=dict)
@@ -101,9 +117,11 @@ class Guard:
             )
         reasons = _identity(serial, sighting)
         reasons.extend(self._motion(serial, sighting))
+        reasons.extend(self._consistency(serial, sighting))
         if self._clustered(serial, sighting):
             reasons.append("pilot_cluster")
         self._track[serial] = _mark(sighting)
+        self._remember(serial, sighting)
         if reasons:
             return _spoof(serial, sighting, source, reasons)
         held = ["remote_id_only"]
@@ -147,6 +165,45 @@ class Guard:
         moved = _meters(previous.lat, previous.lon, sighting.lat, sighting.lon)
         if moved / dt > self.max_speed_mps:
             reasons.append("implied_speed")
+        return reasons
+
+    def _remember(self, serial: str, sighting: Sighting) -> None:
+        if not _has_fix(sighting):
+            return
+        points = self._history.setdefault(serial, [])
+        points.append(_Fix(sighting.ts, sighting.lat, sighting.lon, sighting.alt_m))
+        self._history[serial] = [item for item in points if sighting.ts - item.ts <= MOTION_HISTORY_S]
+
+    def _consistency(self, serial: str, sighting: Sighting) -> list[str]:
+        if not _has_fix(sighting):
+            return []
+        past = None
+        for item in self._history.get(serial, []):
+            age = sighting.ts - item.ts
+            if MOTION_WINDOW_S <= age <= MOTION_HISTORY_S:
+                past = item
+                break
+        if past is None:
+            return []
+        reasons = []
+        dt = sighting.ts - past.ts
+        moved = _meters(past.lat, past.lon, sighting.lat, sighting.lon)
+        speed = sighting.speed_mps
+        if speed is not None and speed >= SPEED_LIE_MPS and moved < speed * dt * MOTION_FRACTION:
+            reasons.append("speed_without_motion")
+            if sighting.yaw_deg is not None:
+                reasons.append("heading_without_motion")
+        elif (
+            sighting.yaw_deg is not None
+            and speed is not None
+            and speed >= SPEED_LIE_MPS
+            and moved >= HEADING_MIN_MOVE_M
+            and _angle_diff(_bearing(past.lat, past.lon, sighting.lat, sighting.lon), sighting.yaw_deg)
+            > HEADING_TOLERANCE_DEG
+        ):
+            reasons.append("heading_disagrees")
+        if past.alt is not None and sighting.alt_m is not None and abs(sighting.alt_m - past.alt) / dt > MAX_VERTICAL_MPS:
+            reasons.append("vertical_speed")
         return reasons
 
     def _clustered(self, serial: str, sighting: Sighting) -> bool:
@@ -209,6 +266,20 @@ def _has_fix(sighting: Sighting) -> bool:
 
 def _mark(sighting: Sighting) -> _Mark:
     return _Mark(sighting.ts, sighting.lat, sighting.lon)
+
+
+def _bearing(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    p1 = math.radians(lat1)
+    p2 = math.radians(lat2)
+    dl = math.radians(lon2 - lon1)
+    east = math.sin(dl) * math.cos(p2)
+    north = math.cos(p1) * math.sin(p2) - math.sin(p1) * math.cos(p2) * math.cos(dl)
+    return (math.degrees(math.atan2(east, north)) + 360.0) % 360.0
+
+
+def _angle_diff(left: float, right: float) -> float:
+    gap = abs(left - right) % 360.0
+    return min(gap, 360.0 - gap)
 
 
 def _meters(lat1: float, lon1: float, lat2: float, lon2: float) -> float:

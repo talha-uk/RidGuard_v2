@@ -1,3 +1,3 @@
 """MT303 Remote ID kayıtlarını operasyon ekranından ayıran karar katmanı."""
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"

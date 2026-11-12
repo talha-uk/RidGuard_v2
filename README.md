@@ -16,6 +16,6 @@ Tarayıcıda [http://127.0.0.1:8765](http://127.0.0.1:8765) açılır.
 
 Sol tarafta MT303'ün o an yazdığı satırlar durur. **Bağlan** deyince başlar. MT303 susunca liste silinir.
 
-Sağ tarafta iki işaret durur. **sahte**: bilinen ESP kalıbı, ya da seri düzgün olsa bile hızı, kümesi veya adı bozuk olan yayın. **şüpheli**: seri düzgün durur, uçuş bağlantısı yoktur. İkisi de haritaya konmaz. Yayın kesilince satır kaybolur.
+Sağ tarafta iki işaret durur. **sahte**: bilinen ESP kalıbı, ya da seri düzgün olsa bile hareketi bozuk olan yayın. Hız söylenip konum 5 saniye yerinde kalırsa, yön ile gidiş uyuşmazsa, irtifa bir anda çok değişirse de sahte sayılır. **şüpheli**: seri düzgün durur, uçuş bağlantısı yoktur. İkisi de haritaya konmaz. Yayın kesilince satır kaybolur.
 
 Ne yaptığımız: [YAPTIKLARIMIZ.md](YAPTIKLARIMIZ.md). Teknik kurallar: [OKU.md](OKU.md).

@@ -31,6 +31,7 @@ class Sighting:
     lon: float | None = None
     alt_m: float | None = None
     speed_mps: float | None = None
+    yaw_deg: float | None = None
     pilot_lat: float | None = None
     pilot_lon: float | None = None
     operator_id: str = ""

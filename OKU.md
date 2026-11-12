@@ -2,7 +2,7 @@
 
 Bu dosya teknik kurallardır. Kısa anlatım [README.md](README.md) ve [YAPTIKLARIMIZ.md](YAPTIKLARIMIZ.md) içindedir.
 
-AD-TB MT303, ESP8266 Remote ID yayınını gerçek uçak sanmasın diye yazılmış karar katmanı. Sürüm 0.4.0. Bu sürüm RF basmaz, firmware yazmaz, seri port açmaz.
+AD-TB MT303, ESP8266 Remote ID yayınını gerçek uçak sanmasın diye yazılmış karar katmanı. Sürüm 0.5.0. Bu sürüm RF basmaz, firmware yazmaz, seri port açmaz.
 
 Eski `/home/talha/Desktop/RidGuard` bilgi kaynağıdır. Kodu buraya kopyalanmaz.
 
@@ -12,7 +12,7 @@ Eski `/home/talha/Desktop/RidGuard` bilgi kaynağıdır. Kodu buraya kopyalanmaz
 | --- | --- | --- | --- |
 | ocusync veya fingerprint | ESP8266 şablonu değil | çiz | confirmed |
 | ocusync, fingerprint veya remote_id | `ridSerial()` şablonu | sahte yaz, iğne yok | spoof |
-| remote_id | CTA-2063 dışı, dolgu, katalog operatör / Self-ID / SSID, 45 m/s üstü hız, aynı pilot etrafında 4 uçak | sahte yaz, iğne yok | spoof |
+| remote_id | CTA-2063 dışı, dolgu, katalog operatör / Self-ID / SSID, 45 m/s üstü hız, hız var konum yok, yön uyuşmaz, irtifa sıçrar, aynı pilot etrafında 4 uçak | sahte yaz, iğne yok | spoof |
 | remote_id | yapı düzgün, tek başına | şüpheli yaz, iğne yok | hold |
 
 Konum iğnesi yalnız OcuSync veya parmak izi kaydından gelir. Remote ID satırı, seri aynı olsa bile iğneyi taşımaz.
@@ -37,6 +37,8 @@ Operatör, Self-ID veya SSID katalog model adıysa Remote ID kaydı spoof olur. 
 Aynı 15 saniye ve 80 metre içinde 4 ayrı Remote ID pilotu bir kümedir. Dördüncüyle birlikte küme spoof olur. Küme, oluştuğu andan itibaren 15 saniye spoof kalır.
 
 İki konumun gerektirdiği hız 45 m/s üstündeyse spoof olur. Bildirilen `airspeed` de aynı sınıra bakar ve m/s kabul edilir. 50 ms ve altı aralık hız hesabına girmez. Bu sınır tüketici çok rotorludur. Hızlı sabit kanat yanlış pozitif verebilir.
+
+Bildirilen hız en az 3 m/s iken, 5 ile 20 saniye arasında konum o hızın dörtte birinden az yer değiştirdiyse sahte olur. Yön doluysa ve konum yerinde kaldıysa aynı sahte kayda girer. Konum en az 20 metre gittiyse ve gidiş, bildirilen yönden 60 dereceden fazla sapıyorsa sahte olur. İrtifa değişimi 15 m/s üstündeyse sahte olur.
 
 `source` boş veya bilinmeyen ise remote_id sayılır. `mode` içinde ocusync, o2, o3, o4 veya `drone id` bağdır. `fingerprint` parmak izidir. `protocol` tek başına bağ değildir.
 

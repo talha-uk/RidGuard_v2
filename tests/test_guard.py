@@ -41,7 +41,6 @@ def _clean(serial: str, ts: float, source: str = "remote_id") -> Sighting:
         pilot_lat=39.8132,
         pilot_lon=32.4318,
         operator_id="TR-OP-1001",
-        speed_mps=3.0,
     )
 
 
@@ -155,6 +154,131 @@ class GuardTests(unittest.TestCase):
         self.assertEqual(over_decision.mark, "sahte")
         self.assertIn("reported_speed", over_decision.reasons)
         self.assertIsNone(over_decision.lat)
+
+    def test_speed_and_heading_without_movement_are_fake(self):
+        guard = Guard()
+        first = Sighting(
+            ts=10.0,
+            source="remote_id",
+            serial=CLEAN,
+            lat=39.8132,
+            lon=32.4318,
+            alt_m=100.0,
+            speed_mps=11.11,
+            yaw_deg=90.0,
+        )
+        still = Sighting(
+            ts=18.0,
+            source="remote_id",
+            serial=CLEAN,
+            lat=39.8132,
+            lon=32.4318,
+            alt_m=100.0,
+            speed_mps=11.11,
+            yaw_deg=90.0,
+        )
+        decision = guard.observe(first)
+        self.assertEqual(decision.mark, "şüpheli")
+        caught = guard.observe(still)
+        self.assertEqual(caught.mark, "sahte")
+        self.assertIn("speed_without_motion", caught.reasons)
+        self.assertIn("heading_without_motion", caught.reasons)
+        self.assertIsNone(caught.lat)
+
+    def test_matching_speed_and_heading_stay_suspicious(self):
+        guard = Guard()
+        guard.observe(
+            Sighting(
+                ts=10.0,
+                source="remote_id",
+                serial=CLEAN,
+                lat=39.8132,
+                lon=32.4318,
+                alt_m=100.0,
+                speed_mps=11.11,
+                yaw_deg=0.0,
+            )
+        )
+        moved = guard.observe(
+            Sighting(
+                ts=18.0,
+                source="remote_id",
+                serial=CLEAN,
+                lat=39.8132 + (11.11 * 8.0 / 111_320.0),
+                lon=32.4318,
+                alt_m=110.0,
+                speed_mps=11.11,
+                yaw_deg=0.0,
+            )
+        )
+        self.assertEqual(moved.mark, "şüpheli")
+        self.assertNotIn("speed_without_motion", moved.reasons)
+        self.assertNotIn("heading_disagrees", moved.reasons)
+
+    def test_altitude_jump_is_fake(self):
+        guard = Guard()
+        guard.observe(
+            Sighting(ts=10.0, source="remote_id", serial=CLEAN, lat=39.8132, lon=32.4318, alt_m=100.0)
+        )
+        jumped = guard.observe(
+            Sighting(ts=18.0, source="remote_id", serial=CLEAN, lat=39.8132, lon=32.4318, alt_m=300.0)
+        )
+        self.assertEqual(jumped.mark, "sahte")
+        self.assertIn("vertical_speed", jumped.reasons)
+
+    def test_short_gap_does_not_call_a_lie(self):
+        guard = Guard()
+        guard.observe(
+            Sighting(
+                ts=10.0,
+                source="remote_id",
+                serial=CLEAN,
+                lat=39.8132,
+                lon=32.4318,
+                speed_mps=11.11,
+                yaw_deg=90.0,
+            )
+        )
+        early = guard.observe(
+            Sighting(
+                ts=14.0,
+                source="remote_id",
+                serial=CLEAN,
+                lat=39.8132,
+                lon=32.4318,
+                speed_mps=11.11,
+                yaw_deg=90.0,
+            )
+        )
+        self.assertEqual(early.mark, "şüpheli")
+
+    def test_heading_against_the_track_is_fake(self):
+        guard = Guard()
+        guard.observe(
+            Sighting(
+                ts=10.0,
+                source="remote_id",
+                serial=CLEAN,
+                lat=39.8132,
+                lon=32.4318,
+                speed_mps=11.11,
+                yaw_deg=180.0,
+            )
+        )
+        south_claim = guard.observe(
+            Sighting(
+                ts=18.0,
+                source="remote_id",
+                serial=CLEAN,
+                lat=39.8132 + (11.11 * 8.0 / 111_320.0),
+                lon=32.4318,
+                speed_mps=11.11,
+                yaw_deg=180.0,
+            )
+        )
+        self.assertEqual(south_claim.mark, "sahte")
+        self.assertIn("heading_disagrees", south_claim.reasons)
+        self.assertIsNone(south_claim.lat)
 
     def test_ocusync_is_displayed(self):
         decision = Guard().observe(_clean(CLEAN, 10.0, source="ocusync"))

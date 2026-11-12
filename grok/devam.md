@@ -2,12 +2,12 @@
 
 ## Son oturum
 
-2026-11-12. Tespit iki dereceye ayrıldı. Sahte: kalıp, hız, küme, katalog. Şüpheli: düzgün seri, bağ yok.
+2026-11-12. Hız, yön ve irtifa uyumsuzluğu sahte sayıldı. 43 test geçti. ESP yayın yazılımı yazılmadı.
 
 ## Kaldığımız yer
 
-Ekran durduruldu. Yeniden `python3 -m rid_guard.ekran` ile açılır. Depo https://github.com/talha-uk/RidGuard_v2 , dal `main`. Fikirler `sahte-fikirler.md` içindedir. Koda bağlanan kural değişmedi. `ttyUSB0` açılmaz. Firmware yazılmaz. Yayın yok.
+Ekran durduruldu. Yeniden `python3 -m rid_guard.ekran` ile açılır. Depo https://github.com/talha-uk/RidGuard_v2 , dal `main`. Uyumlu sahte iz şüpheli kalır ve iğne almaz. `ttyUSB0` açılmaz. Firmware yazılmaz. Yayın yok.
 
 ## Sıradaki adım
 
-Talha yeni bir fikir yazınca aynı dosyada teyit edilir. Gerçek DJI ile ESP yan yana Wi-Fi taraması ayrıca istenir.
+Talha yeni bir uyumsuzluk yazınca aynı kurallar dosyasında teyit edilir. Gerçek DJI ile ESP yan yana Wi-Fi taraması ayrıca istenir.
