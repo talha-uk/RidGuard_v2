@@ -1,8 +1,8 @@
 # RidGuard
 
-Sahte drone yayını ile gerçek drone yayınını ayıran bir ekran.
+MT303'ün canlı kaydını izler ve sahte drone tespiti yapar.
 
-Küçük bir kart, havaya drone kimliği basabiliyor. Dinleme kutusu bunu da satır satır yazıyor. RidGuard bu satırları okur. Kartın bastığı kimliği **sahte** diye gösterir. Onu haritada gerçek drone diye işaretlemez.
+ESP kart, havaya sahte drone kimliği basabiliyor. MT303 bunu da satır satır yazar. RidGuard bu satırları okur. ESP kartın bastığı kimliği **sahte** diye gösterir. Onu haritada gerçek drone diye işaretlemez.
 
 Gerçek bir uçuş bağlantısı gelirse onu gösterir.
 
@@ -14,8 +14,8 @@ python3 -m rid_guard.ekran
 
 Tarayıcıda [http://127.0.0.1:8765](http://127.0.0.1:8765) açılır.
 
-Sol tarafta kutunun o an yazdığı satırlar durur. **Bağlan** deyince başlar. Kutu susunca liste silinir.
+Sol tarafta MT303'ün o an yazdığı satırlar durur. **Bağlan** deyince başlar. MT303 susunca liste silinir.
 
-Sağ tarafta o anda duyulan sahte yayınlar durur. Yayın kesilince satır kaybolur.
+Sağ tarafta o anda tespit edilen sahte dronelar durur. Yayın kesilince satır kaybolur.
 
 Ne yaptığımız: [YAPTIKLARIMIZ.md](YAPTIKLARIMIZ.md). Teknik kurallar: [OKU.md](OKU.md).

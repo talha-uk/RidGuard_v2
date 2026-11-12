@@ -94,7 +94,7 @@ def _parse_mt(text: str) -> Sighting | None:
         lon=_optional_number(fields, "longitude"),
         alt_m=_optional_number(fields, "altitude_geo", "altitude_qne"),
         speed_mps=_optional_number(fields, "speed"),
-        # Kutu operatör enlemini latitude_polit diye yazar.
+        # MT303 operatör enlemini latitude_polit diye yazar.
         pilot_lat=_optional_number(fields, "latitude_polit"),
         pilot_lon=_optional_number(fields, "longitude_polit"),
     )

@@ -1,17 +1,15 @@
 # Ne yaptık
 
-Bir dinleme kutumuz var. Drone yayınlarını satır satır yazıyor.
+MT303'ün canlı kaydını izliyoruz ve sahte drone tespiti yapıyoruz.
 
-Bir de küçük bir kartımız var. Bu kart sahte drone kimliği yayıyor. Kutu bu yayını da gerçek bir drone gibi yazıyor.
+ESP kart sahte drone kimliği yayıyor. MT303 bu yayını da yazıyor.
 
-RidGuard bu ikisini ayırır.
-
-Kartın yayınını tanır ve ekranda **sahte** diye gösterir. Yerini haritaya koymaz. Yayın gizlenmez. Gerçek drone da sanılmaz.
+RidGuard bu kaydı okur. ESP kartın yayınını tanır ve ekranda **sahte** diye gösterir. Yerini haritaya koymaz. Yayın gizlenmez. Gerçek drone da sanılmaz.
 
 Gerçek bir uçuş bağlantısı gelirse onu gösterir.
 
-Ekran iki parçadır. Solda kutunun canlı yazısı vardır. Sağda o an duyulan sahte yayınlar vardır.
+Ekran iki parçadır. Solda MT303'ün canlı kaydı vardır. Sağda tespit edilen sahte dronelar vardır.
 
-Program yalnız dinler. Kartın yayınını kendisi üretmez.
+Program yalnız dinler. ESP kartın yayınını kendisi üretmez.
 
 Teknik kurallar [OKU.md](OKU.md) içindedir.

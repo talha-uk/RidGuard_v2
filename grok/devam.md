@@ -2,7 +2,7 @@
 
 ## Son oturum
 
-2026-11-12. GitHub anlatımı sadeleştirildi. README ve YAPTIKLARIMIZ herkesin okuyacağı dilde.
+2026-11-12. Anlatımda kutu MT303, küçük kart ESP kart oldu. Canlı kayıt ve sahte drone tespiti diye yazıldı.
 
 ## Kaldığımız yer
 

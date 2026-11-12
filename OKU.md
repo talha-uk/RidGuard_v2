@@ -49,7 +49,7 @@ Bağ kaydı 120 saniye hatırlanır. Bu pencerede gelen Remote ID iğneyi oynatm
 3. `python3 -m rid_guard` her satıra bir karar basar.
 4. Tanınmayan satır stderr'e `verdict: reject` olarak düşer ve ekrana drone eklemez.
 
-Kutu cümlesi `$tip,...,$end` okunur. `$RID` karara girer. `$heartbeat` ve `$Feature` uçak değildir, atlanır. `/dev/ttyUSB0` spoofer kartıdır. Portu açmak kartı resetler. Bu iş ayrı açık istek ister.
+MT303 cümlesi `$tip,...,$end` okunur. `$RID` karara girer. `$heartbeat` ve `$Feature` uçak değildir, atlanır. `/dev/ttyUSB0` spoofer kartıdır. Portu açmak kartı resetler. Bu iş ayrı açık istek ister.
 
 ## Çalıştırma
 
@@ -62,7 +62,7 @@ python3 -m rid_guard --only-screen --file fixtures/lab_and_link.jsonl
 python3 -m rid_guard.ekran
 ```
 
-Arayüz `http://127.0.0.1:8765` adresindedir. Soldaki Bağlan, kutu ağdaysa `192.168.0.200:10123` akışını açar. Ekranda yalnız bu bağlantıdan sonra gelen satırlar durur. Kutu yaklaşık 3 saniye susunca bağlantı düşer ve liste boşalır. Sağda son 20 saniyede görülen sahte yayınlar durur. Aynı portu `izle.py` tutuyorsa bağlanma olmaz.
+Arayüz `http://127.0.0.1:8765` adresindedir. Soldaki Bağlan, MT303 ağdaysa `192.168.0.200:10123` akışını açar. Ekranda yalnız bu bağlantıdan sonra gelen satırlar durur. MT303 yaklaşık 3 saniye susunca bağlantı düşer ve liste boşalır. Sağda son 20 saniyede görülen sahte yayınlar durur. Aynı portu `izle.py` tutuyorsa bağlanma olmaz.
 
 Laboratuvar fikstüründeki Remote ID satırı `display: true`, `mark: sahte` ve `verdict: spoof` olur. Uçak konumu boştur. OcuSync satırı `display: true` ve `mark` boş olur. `--only-screen` ikisini de basar.
 

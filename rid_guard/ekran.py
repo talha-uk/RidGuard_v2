@@ -2,7 +2,7 @@
 
   python3 -m rid_guard.ekran
 
-Kutu 192.168.0.200 port 10123. Bu makine 192.168.0.10 olmalı.
+MT303 192.168.0.200 port 10123. Bu makine 192.168.0.10 olmalı.
 Bağlantı düğmeye basınca açılır. Aynı portu başka bir program tutuyorsa bağlanmaz.
 """
 

@@ -97,7 +97,7 @@
       <button id="connect" type="button">Bağlan</button>
     </header>
     <div class="scroll" id="live">
-      <div class="empty">Bağlan deyince kutunun bastığı satırlar burada akar.</div>
+      <div class="empty">Bağlan deyince MT303'ün bastığı satırlar burada akar.</div>
     </div>
   </section>
   <section class="pane">
@@ -169,8 +169,8 @@
 
       if (body.status !== "bağlı" || !body.lines.length) {
         const waiting = body.status === "bağlı"
-          ? "Bağlandı. Kutunun yeni satırları burada görünecek."
-          : "Bağlan deyince kutunun bastığı satırlar burada akar.";
+          ? "Bağlandı. MT303'ün yeni satırları burada görünecek."
+          : "Bağlan deyince MT303'ün bastığı satırlar burada akar.";
         live.innerHTML = '<div class="empty">' + waiting + "</div>";
       } else {
         live.innerHTML = body.lines.map((line) => {
