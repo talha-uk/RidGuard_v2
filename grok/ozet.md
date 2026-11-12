@@ -2,7 +2,7 @@
 
 ## Ne
 
-RidGuard_v2, MT303 Remote ID süzgecinin en baştan yazıldığı klasördür. Eski `/home/talha/Desktop/RidGuard` bilgi kaynağıdır. Kodu kopyalanmaz.
+RidGuard_v2, MT303 Remote ID süzgecinin en baştan yazıldığı klasördür. Depo https://github.com/talha-uk/RidGuard_v2 . Eski `/home/talha/Desktop/RidGuard` bilgi kaynağıdır. Kodu kopyalanmaz.
 
 ## Şu an
 

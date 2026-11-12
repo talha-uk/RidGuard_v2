@@ -6,7 +6,7 @@
 
 ## Kaldığımız yer
 
-Ekran durduruldu. Yeniden `python3 -m rid_guard.ekran` ile açılır. Fikirler `sahte-fikirler.md` içindedir. Koda bağlanan kural değişmedi. `ttyUSB0` açılmaz. Firmware yazılmaz. Yayın yok.
+Ekran durduruldu. Yeniden `python3 -m rid_guard.ekran` ile açılır. Depo https://github.com/talha-uk/RidGuard_v2 , dal `main`. Fikirler `sahte-fikirler.md` içindedir. Koda bağlanan kural değişmedi. `ttyUSB0` açılmaz. Firmware yazılmaz. Yayın yok.
 
 ## Sıradaki adım
 
