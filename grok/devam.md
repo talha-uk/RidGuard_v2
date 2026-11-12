@@ -2,7 +2,7 @@
 
 ## Son oturum
 
-2026-11-12. Yapılan iş `YAPTIKLARIMIZ.md` içine yazıldı. Ekran duruyor.
+2026-11-12. GitHub anlatımı sadeleştirildi. README ve YAPTIKLARIMIZ herkesin okuyacağı dilde.
 
 ## Kaldığımız yer
 

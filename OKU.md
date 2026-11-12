@@ -1,5 +1,7 @@
 # RidGuard_v2
 
+Bu dosya teknik kurallardır. Kısa anlatım [README.md](README.md) ve [YAPTIKLARIMIZ.md](YAPTIKLARIMIZ.md) içindedir.
+
 AD-TB MT303, ESP8266 Remote ID yayınını gerçek uçak sanmasın diye yazılmış karar katmanı. Sürüm 0.3.0. Bu sürüm RF basmaz, firmware yazmaz, seri port açmaz.
 
 Eski `/home/talha/Desktop/RidGuard` bilgi kaynağıdır. Kodu buraya kopyalanmaz.
