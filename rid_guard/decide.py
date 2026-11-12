@@ -1,8 +1,7 @@
 """Remote ID kaydını operasyon ekranına alıp almamaya karar verir.
 
-Ekrana OcuSync, RF parmak izi ve sahte diye işaretlenmiş ESP8266 şablonu düşer.
-Şablon kaynak etiketinde bağ yazsa da uçak iğnesi almaz.
-Remote ID satırı konum taşımaz.
+Ekrana OcuSync, RF parmak izi, sahte ve şüpheli kimlik düşer.
+Sahte ve şüpheli kayıt uçak iğnesi almaz.
 """
 
 from dataclasses import dataclass, field
@@ -110,11 +109,16 @@ class Guard:
         held = ["remote_id_only"]
         if serial in self._link_seen:
             held.append("remote_id_position_ignored")
+        if _at_origin(sighting):
+            held.append("aircraft_at_origin")
         return Decision(
             serial=serial,
             verdict="hold",
-            display=False,
+            display=True,
+            mark="şüpheli",
             reasons=held,
+            pilot_lat=sighting.pilot_lat,
+            pilot_lon=sighting.pilot_lon,
             model=sighting.model,
             source="remote_id",
         )
@@ -167,8 +171,11 @@ def _spoof(serial: str, sighting: Sighting, source: str, reasons: list[str]) -> 
     return Decision(
         serial=serial,
         verdict="spoof",
-        display=False,
+        display=True,
+        mark="sahte",
         reasons=reasons,
+        pilot_lat=sighting.pilot_lat,
+        pilot_lon=sighting.pilot_lon,
         model=sighting.model,
         source=source,
     )
@@ -190,6 +197,10 @@ def _identity(serial: str, sighting: Sighting) -> list[str]:
     if is_catalog_label(sighting.ssid):
         reasons.append("ssid_is_model")
     return reasons
+
+
+def _at_origin(sighting: Sighting) -> bool:
+    return sighting.lat == 0 and sighting.lon == 0
 
 
 def _has_fix(sighting: Sighting) -> bool:

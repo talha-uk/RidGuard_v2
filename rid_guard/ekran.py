@@ -75,7 +75,8 @@ class Board:
         if sighting is None:
             return
         decision = self.guard.observe(sighting)
-        if decision.mark != "sahte":
+        if decision.mark not in {"sahte", "şüpheli"}:
+            self.fakes.pop(decision.serial, None)
             return
         previous = self.fakes.get(decision.serial)
         count = 1 if previous is None else previous["count"] + 1
@@ -83,7 +84,7 @@ class Board:
         self.fakes[decision.serial] = {
             "serial": decision.serial,
             "model": decision.model,
-            "mark": "sahte",
+            "mark": decision.mark,
             "rssi": rssi,
             "protocol": _text(_PROTO, line),
             "channel": _text(_CHAN, line),

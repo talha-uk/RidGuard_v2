@@ -4,8 +4,8 @@
   python3 -m rid_guard --only-screen --file kayit.jsonl
 
 Tanınmayan satır stderr'e düşer ve ekrana drone eklemez.
-Hold varsayılan olarak çizilmez. --show-hold inceleme içindir.
-ESP şablonu sahte diye ekrana girer, uçak iğnesi almaz.
+Sahte ve şüpheli kimlik ekrana girer, uçak iğnesi almaz.
+--show-hold şüpheli kaydın iddia edilen yerini de basar.
 """
 
 import argparse
@@ -27,7 +27,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--only-screen",
         action="store_true",
-        help="Yalnız ekrana girecek satırı bas. Hold ve işaretsiz spoof çıkmaz.",
+        help="Yalnız ekrana girecek satırı bas.",
     )
     args = parser.parse_args(argv)
     guard = Guard()

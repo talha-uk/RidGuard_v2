@@ -121,10 +121,11 @@ class GuardTests(unittest.TestCase):
         self.assertIsNone(decision.lat)
         self.assertEqual(decision.source, "ocusync")
 
-    def test_clean_remote_id_stays_off_the_picture(self):
+    def test_clean_remote_id_is_suspicious(self):
         decision = Guard().observe(_clean(CLEAN, 10.0))
         self.assertEqual(decision.verdict, "hold")
-        self.assertFalse(decision.display)
+        self.assertTrue(decision.display)
+        self.assertEqual(decision.mark, "şüpheli")
         self.assertEqual(decision.reasons, ["remote_id_only"])
         self.assertIsNone(decision.lat)
 
@@ -147,8 +148,13 @@ class GuardTests(unittest.TestCase):
             speed_mps=45.1,
             operator_id="TR-OP-1001",
         )
-        self.assertEqual(Guard().observe(under).verdict, "hold")
-        self.assertIn("reported_speed", Guard().observe(over).reasons)
+        under_decision = Guard().observe(under)
+        over_decision = Guard().observe(over)
+        self.assertEqual(under_decision.verdict, "hold")
+        self.assertEqual(under_decision.mark, "şüpheli")
+        self.assertEqual(over_decision.mark, "sahte")
+        self.assertIn("reported_speed", over_decision.reasons)
+        self.assertIsNone(over_decision.lat)
 
     def test_ocusync_is_displayed(self):
         decision = Guard().observe(_clean(CLEAN, 10.0, source="ocusync"))
@@ -176,7 +182,8 @@ class GuardTests(unittest.TestCase):
         )
         decision = guard.observe(echo)
         self.assertEqual(decision.verdict, "hold")
-        self.assertFalse(decision.display)
+        self.assertEqual(decision.mark, "şüpheli")
+        self.assertTrue(decision.display)
         self.assertIsNone(decision.lat)
         self.assertIn("remote_id_position_ignored", decision.reasons)
         self.assertEqual(link.lat, 39.8132)
@@ -194,6 +201,8 @@ class GuardTests(unittest.TestCase):
         )
         decision = guard.observe(jumped)
         self.assertEqual(decision.verdict, "spoof")
+        self.assertEqual(decision.mark, "sahte")
+        self.assertTrue(decision.display)
         self.assertIn("implied_speed", decision.reasons)
         self.assertIsNone(decision.lat)
 
@@ -207,13 +216,17 @@ class GuardTests(unittest.TestCase):
         ]
         decisions = [guard.observe(_clean(serial, 100.0 + index)) for index, serial in enumerate(serials)]
         self.assertEqual(decisions[0].verdict, "hold")
+        self.assertEqual(decisions[0].mark, "şüpheli")
         self.assertEqual(decisions[3].verdict, "spoof")
+        self.assertEqual(decisions[3].mark, "sahte")
         self.assertIn("pilot_cluster", decisions[3].reasons)
         again = guard.observe(_clean(serials[0], 104.0))
         self.assertEqual(again.verdict, "spoof")
-        self.assertFalse(again.display)
+        self.assertEqual(again.mark, "sahte")
+        self.assertTrue(again.display)
         later = guard.observe(_clean(serials[0], 120.0))
         self.assertEqual(later.verdict, "hold")
+        self.assertEqual(later.mark, "şüpheli")
 
     def test_catalog_operator_on_a_clean_serial_is_spoof(self):
         sighting = _clean(CLEAN, 10.0)
@@ -227,6 +240,9 @@ class GuardTests(unittest.TestCase):
         )
         decision = Guard().observe(sighting)
         self.assertEqual(decision.verdict, "spoof")
+        self.assertEqual(decision.mark, "sahte")
+        self.assertTrue(decision.display)
+        self.assertIsNone(decision.lat)
         self.assertIn("operator_is_model", decision.reasons)
 
 
@@ -270,7 +286,9 @@ class ParseTests(unittest.TestCase):
     def test_bare_protocol_is_not_a_link(self):
         sighting = parse_line('{"ts": 1, "serial": "1581FA23456789ABCDEF", "mode": "protocol"}')
         self.assertEqual(sighting.source, "remote_id")
-        self.assertFalse(Guard().observe(sighting).display)
+        decision = Guard().observe(sighting)
+        self.assertTrue(decision.display)
+        self.assertEqual(decision.mark, "şüpheli")
 
     def test_missing_serial(self):
         with self.assertRaises(ParseError):
@@ -298,6 +316,14 @@ class ParseTests(unittest.TestCase):
         self.assertEqual(decision.pilot_lon, 32.4313008)
         self.assertEqual(decision.model, "DJI Mini 4 Pro")
         self.assertEqual(decision.source, "remote_id")
+
+    def test_plain_serial_at_origin_stays_suspicious(self):
+        decision = Guard().observe(
+            Sighting(ts=10.0, source="remote_id", serial=CLEAN, lat=0.0, lon=0.0)
+        )
+        self.assertEqual(decision.mark, "şüpheli")
+        self.assertIn("aircraft_at_origin", decision.reasons)
+        self.assertIsNone(decision.lat)
 
     def test_heartbeat_and_feature_are_not_aircraft(self):
         self.assertIsNone(read_line("$heartbeat,serial:3844BE214DAC,lat:0.0,lng:0.0,$end"))

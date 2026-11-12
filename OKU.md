@@ -2,7 +2,7 @@
 
 Bu dosya teknik kurallardır. Kısa anlatım [README.md](README.md) ve [YAPTIKLARIMIZ.md](YAPTIKLARIMIZ.md) içindedir.
 
-AD-TB MT303, ESP8266 Remote ID yayınını gerçek uçak sanmasın diye yazılmış karar katmanı. Sürüm 0.3.0. Bu sürüm RF basmaz, firmware yazmaz, seri port açmaz.
+AD-TB MT303, ESP8266 Remote ID yayınını gerçek uçak sanmasın diye yazılmış karar katmanı. Sürüm 0.4.0. Bu sürüm RF basmaz, firmware yazmaz, seri port açmaz.
 
 Eski `/home/talha/Desktop/RidGuard` bilgi kaynağıdır. Kodu buraya kopyalanmaz.
 
@@ -12,12 +12,12 @@ Eski `/home/talha/Desktop/RidGuard` bilgi kaynağıdır. Kodu buraya kopyalanmaz
 | --- | --- | --- | --- |
 | ocusync veya fingerprint | ESP8266 şablonu değil | çiz | confirmed |
 | ocusync, fingerprint veya remote_id | `ridSerial()` şablonu | sahte yaz, iğne yok | spoof |
-| remote_id | CTA-2063 dışı, dolgu, katalog operatör / Self-ID / SSID, 45 m/s üstü hız, aynı pilot etrafında 4 uçak | çizme | spoof |
-| remote_id | yapı düzgün, tek başına | çizme | hold |
+| remote_id | CTA-2063 dışı, dolgu, katalog operatör / Self-ID / SSID, 45 m/s üstü hız, aynı pilot etrafında 4 uçak | sahte yaz, iğne yok | spoof |
+| remote_id | yapı düzgün, tek başına | şüpheli yaz, iğne yok | hold |
 
 Konum iğnesi yalnız OcuSync veya parmak izi kaydından gelir. Remote ID satırı, seri aynı olsa bile iğneyi taşımaz.
 
-Hold varsayılan kapalıdır. `--show-hold` inceleme katmanıdır ve o kayıtların konumunu da basar. Operasyon resmi `--only-screen` çıktısıdır.
+Düzgün tek Remote ID `şüpheli` diye görünür. `--show-hold` o kaydın iddia edilen yerini de basar. Operasyon resmi `--only-screen` çıktısıdır.
 
 ## Kurallar
 
@@ -68,7 +68,7 @@ Laboratuvar fikstüründeki Remote ID satırı `display: true`, `mark: sahte` ve
 
 ## Bilinçli sınır
 
-Dört gerçek Remote ID uçağı 80 metre içinde 15 saniyede görünürse onlar da spoof yazılır. Ana ekran zaten Remote ID çizmediği için operasyon resmi değişmez.
+Dört Remote ID uçağı 80 metre içinde 15 saniyede görünürse onlar da sahte yazılır. Haritaya konmaz.
 
 Tek ve yapısı düzgün bir Remote ID, hold kalır. Bağ çözülemeyen gerçek bir uçak da ana ekranda görünmez. Parmak izi veya OcuSync satırı gelince uçak confirmed olur.
 

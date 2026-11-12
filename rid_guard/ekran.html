@@ -77,6 +77,8 @@
       margin-bottom: 10px;
       background: #32302f;
     }
+    .card.supheli { border-left-color: var(--rid); }
+    .card.supheli .rssi { color: var(--rid); }
     .card h2 { margin: 0 0 4px; font-size: 16px; }
     .serial { font-family: ui-monospace, monospace; font-size: 13px; }
     .meta { color: var(--muted); font-size: 13px; margin-top: 6px; }
@@ -103,12 +105,12 @@
   <section class="pane">
     <header>
       <div>
-        <h1>Tahmini sahte sinyaller</h1>
+        <h1>Sahte ve şüpheli</h1>
         <div class="sub" id="fake-count">aktif yok</div>
       </div>
     </header>
     <div class="scroll" id="fakes">
-      <div class="empty">Son 20 saniyede sahte yayın yok.</div>
+      <div class="empty">Son 20 saniyede sahte ya da şüpheli yayın yok.</div>
     </div>
   </section>
   <script>
@@ -182,16 +184,17 @@
 
       if (body.status !== "bağlı" || !body.fakes.length) {
         count.textContent = "aktif yok";
-        fakes.innerHTML = '<div class="empty">Son 20 saniyede sahte yayın yok.</div>';
+        fakes.innerHTML = '<div class="empty">Son 20 saniyede sahte ya da şüpheli yayın yok.</div>';
         return;
       }
       count.textContent = body.fakes.length + " aktif";
       fakes.innerHTML = body.fakes.map((row) => {
         const where = [row.protocol, row.channel ? "kanal " + row.channel : ""].filter(Boolean).join(" ");
         const age = row.age_s < 1 ? "şimdi" : Math.round(row.age_s) + " sn";
-        return '<article class="fake-card card"><span class="rssi">' + rssi(row.rssi) +
+        const grade = row.mark === "şüpheli" ? "supheli" : "";
+        return '<article class="fake-card card ' + grade + '"><span class="rssi">' + rssi(row.rssi) +
           "</span><h2>" + esc(row.model || "bilinmeyen model") + "</h2><div class=\"serial\">" +
-          esc(row.serial) + "</div><div class=\"meta\">" + esc(pilot(row) + " · " + where +
+          esc(row.serial) + "</div><div class=\"meta\">" + esc(row.mark + " · " + pilot(row) + " · " + where +
           " · " + row.count + " kez · " + age) + "</div></article>";
       }).join("");
     }

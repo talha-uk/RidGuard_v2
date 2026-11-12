@@ -2,7 +2,7 @@
 
 ## Son oturum
 
-2026-11-12. Anlatımda kutu MT303, küçük kart ESP kart oldu. Canlı kayıt ve sahte drone tespiti diye yazıldı.
+2026-11-12. Tespit iki dereceye ayrıldı. Sahte: kalıp, hız, küme, katalog. Şüpheli: düzgün seri, bağ yok.
 
 ## Kaldığımız yer
 

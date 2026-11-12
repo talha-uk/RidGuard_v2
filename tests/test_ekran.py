@@ -112,7 +112,7 @@ class LiveTests(unittest.TestCase):
         try:
             page = urllib.request.urlopen(f"http://127.0.0.1:{port}/").read().decode()
             self.assertIn("MT303", page)
-            self.assertIn("Tahmini sahte sinyaller", page)
+            self.assertIn("Sahte ve şüpheli", page)
             self.assertIn('id="connect"', page)
             urllib.request.urlopen(urllib.request.Request(f"http://127.0.0.1:{port}/api/connect", method="POST"))
             deadline = time.monotonic() + 3
