@@ -349,7 +349,7 @@ class GuardTests(unittest.TestCase):
         self.assertIn("implied_speed", decision.reasons)
         self.assertIsNone(decision.lat)
 
-    def test_four_aircraft_one_pilot_become_spoof(self):
+    def test_four_aircraft_one_pilot_are_a_swarm(self):
         guard = Guard()
         serials = [
             "1581FA23456789ABCDEF",
@@ -360,13 +360,15 @@ class GuardTests(unittest.TestCase):
         decisions = [guard.observe(_clean(serial, 100.0 + index)) for index, serial in enumerate(serials)]
         self.assertEqual(decisions[0].verdict, "hold")
         self.assertEqual(decisions[0].mark, "şüpheli")
-        self.assertEqual(decisions[3].verdict, "spoof")
-        self.assertEqual(decisions[3].mark, "sahte")
+        self.assertEqual(decisions[3].verdict, "swarm")
+        self.assertEqual(decisions[3].mark, "sürü")
+        self.assertIsNone(decisions[3].lat)
         self.assertIn("pilot_cluster", decisions[3].reasons)
         again = guard.observe(_clean(serials[0], 104.0))
-        self.assertEqual(again.verdict, "spoof")
-        self.assertEqual(again.mark, "sahte")
+        self.assertEqual(again.verdict, "swarm")
+        self.assertEqual(again.mark, "sürü")
         self.assertTrue(again.display)
+        self.assertIsNone(again.lat)
         later = guard.observe(_clean(serials[0], 120.0))
         self.assertEqual(later.verdict, "hold")
         self.assertEqual(later.mark, "şüpheli")

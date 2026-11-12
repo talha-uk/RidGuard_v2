@@ -50,6 +50,28 @@ class BoardTests(unittest.TestCase):
         self.assertEqual(rows[0]["count"], 2)
         self.assertEqual(rows[0]["rssi"], -8)
 
+    def test_four_close_pilots_are_a_swarm(self):
+        board = Board()
+        serials = [
+            "1581FA23456789ABCDEF",
+            "1581FB23456789ABCDEF",
+            "1581FC23456789ABCDEF",
+            "1581FD23456789ABCDEF",
+        ]
+        for index, serial in enumerate(serials):
+            board.ingest(
+                "$RID,protocol:beacon,channel:6,uav_id:"
+                + serial
+                + ",speed:0.00,latitude:39.8132000,longitude:32.4318000,"
+                + "latitude_polit:39.8132000,longitude_polit:32.4318000,timestamp2:"
+                + str(100 + index)
+                + ",$end",
+                now=100 + index,
+            )
+        marks = {row["serial"]: row["mark"] for row in board.snapshot(now=104)["fakes"]}
+        self.assertEqual(marks[serials[3]], "sürü")
+        self.assertEqual(marks[serials[0]], "şüpheli")
+
     def test_two_serials_stay_listed(self):
         board = Board()
         board.ingest(RID, now=10)
@@ -112,7 +134,7 @@ class LiveTests(unittest.TestCase):
         try:
             page = urllib.request.urlopen(f"http://127.0.0.1:{port}/").read().decode()
             self.assertIn("MT303", page)
-            self.assertIn("Sahte ve şüpheli", page)
+            self.assertIn("Sahte, şüpheli ve sürü", page)
             self.assertIn('id="connect"', page)
             urllib.request.urlopen(urllib.request.Request(f"http://127.0.0.1:{port}/api/connect", method="POST"))
             deadline = time.monotonic() + 3

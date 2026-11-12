@@ -75,7 +75,7 @@ class Board:
         if sighting is None:
             return
         decision = self.guard.observe(sighting)
-        if decision.mark not in {"sahte", "şüpheli"}:
+        if decision.mark not in {"sahte", "şüpheli", "sürü"}:
             self.fakes.pop(decision.serial, None)
             return
         previous = self.fakes.get(decision.serial)

@@ -2,7 +2,7 @@
 
 Bu dosya teknik kurallardır. Kısa anlatım [README.md](README.md) ve [YAPTIKLARIMIZ.md](YAPTIKLARIMIZ.md) içindedir.
 
-AD-TB MT303, ESP8266 Remote ID yayınını gerçek uçak sanmasın diye yazılmış karar katmanı. Sürüm 0.6.0. Bu sürüm RF basmaz, firmware yazmaz, seri port açmaz.
+AD-TB MT303, ESP8266 Remote ID yayınını gerçek uçak sanmasın diye yazılmış karar katmanı. Sürüm 0.7.0. Bu sürüm RF basmaz, firmware yazmaz, seri port açmaz.
 
 Eski `/home/talha/Desktop/RidGuard` bilgi kaynağıdır. Kodu buraya kopyalanmaz.
 
@@ -12,7 +12,8 @@ Eski `/home/talha/Desktop/RidGuard` bilgi kaynağıdır. Kodu buraya kopyalanmaz
 | --- | --- | --- | --- |
 | ocusync veya fingerprint | ESP8266 şablonu değil | çiz | confirmed |
 | ocusync, fingerprint veya remote_id | `ridSerial()` şablonu | sahte yaz, iğne yok | spoof |
-| remote_id | CTA-2063 dışı, dolgu, katalog operatör / Self-ID / SSID, 45 m/s üstü hız, hız var konum yok, yön uyuşmaz, irtifa sıçrar, bağ yerinden 200 m sapma, aynı pilot etrafında 4 uçak | sahte yaz, iğne yok | spoof |
+| remote_id | CTA-2063 dışı, dolgu, katalog operatör / Self-ID / SSID, 45 m/s üstü hız, hız var konum yok, yön uyuşmaz, irtifa sıçrar, bağ yerinden 200 m sapma | sahte yaz, iğne yok | spoof |
+| remote_id | aynı 15 saniye ve 80 metre içinde 4 pilot, başka bozukluk yok | sürü yaz, iğne yok | swarm |
 | remote_id | yapı düzgün, tek başına | şüpheli yaz, iğne yok | hold |
 
 Konum iğnesi yalnız OcuSync veya parmak izi kaydından gelir. Remote ID satırı, seri aynı olsa bile iğneyi taşımaz.
@@ -34,7 +35,7 @@ Aynı karakter 7 kez veya daha uzun tekrar ederse dolgudur.
 
 Operatör, Self-ID veya SSID katalog model adıysa Remote ID kaydı spoof olur. Aynı ad, şablonu bozuk olmayan bir OcuSync kaydını düşürmez.
 
-Aynı 15 saniye ve 80 metre içinde 4 ayrı Remote ID pilotu bir kümedir. Dördüncüyle birlikte küme spoof olur. Küme, oluştuğu andan itibaren 15 saniye spoof kalır.
+Aynı 15 saniye ve 80 metre içinde 4 ayrı Remote ID pilotu bir sürü olur. Bu sahte hükmü değildir. Gerçek bir sürü de yan yana görünür. Küme, oluştuğu andan itibaren 15 saniye sürü kalır. Başka bir bozukluk varsa sahte hükmü sürer.
 
 İki konumun gerektirdiği hız 45 m/s üstündeyse spoof olur. Bildirilen `airspeed` de aynı sınıra bakar ve m/s kabul edilir. 50 ms ve altı aralık hız hesabına girmez. Bu sınır tüketici çok rotorludur. Hızlı sabit kanat yanlış pozitif verebilir.
 

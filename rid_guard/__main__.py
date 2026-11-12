@@ -4,7 +4,7 @@
   python3 -m rid_guard --only-screen --file kayit.jsonl
 
 Tanınmayan satır stderr'e düşer ve ekrana drone eklemez.
-Sahte ve şüpheli kimlik ekrana girer, uçak iğnesi almaz.
+Sahte, şüpheli ve sürü kimliği ekrana girer, uçak iğnesi almaz.
 --show-hold şüpheli kaydın iddia edilen yerini de basar.
 """
 

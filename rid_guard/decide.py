@@ -1,7 +1,7 @@
 """Remote ID kaydını operasyon ekranına alıp almamaya karar verir.
 
-Ekrana OcuSync, RF parmak izi, sahte ve şüpheli kimlik düşer.
-Sahte ve şüpheli kayıt uçak iğnesi almaz.
+Ekrana OcuSync, RF parmak izi, sahte, şüpheli ve sürü kimliği düşer.
+Sahte, şüpheli ve sürü kaydı uçak iğnesi almaz.
 """
 
 from dataclasses import dataclass, field
@@ -120,12 +120,26 @@ class Guard:
         reasons.extend(self._motion(serial, sighting))
         reasons.extend(self._consistency(serial, sighting))
         reasons.extend(self._link_conflict(serial, sighting))
-        if self._clustered(serial, sighting):
+        clustered = self._clustered(serial, sighting)
+        if clustered:
             reasons.append("pilot_cluster")
         self._track[serial] = _mark(sighting)
         self._remember(serial, sighting)
-        if reasons:
+        spoof_reasons = [item for item in reasons if item != "pilot_cluster"]
+        if spoof_reasons:
             return _spoof(serial, sighting, source, reasons)
+        if clustered:
+            return Decision(
+                serial=serial,
+                verdict="swarm",
+                display=True,
+                mark="sürü",
+                reasons=reasons,
+                pilot_lat=sighting.pilot_lat,
+                pilot_lon=sighting.pilot_lon,
+                model=sighting.model,
+                source="remote_id",
+            )
         held = ["remote_id_only"]
         if serial in self._link_seen:
             held.append("remote_id_position_ignored")
